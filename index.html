@@ -560,8 +560,8 @@ function initMenu() {
     // Cargar productos inicialmente
     cargarProductos();
     
-    // Actualizar automáticamente cada 30 segundos (reducido para mejor UX)
-    setInterval(cargarProductos, 500);
+    // Actualizar automáticamente cada 3 segundos (reducido para mejor UX)
+    setInterval(cargarProductos, 3000);
     
     // También actualizar cuando la ventana gane foco
     window.addEventListener('focus', cargarProductos);
@@ -581,3 +581,4 @@ console.log('🌐 Menú Digital Colonial - Cargando...');
 </body>
 
 </html>
+
