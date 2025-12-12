@@ -560,8 +560,8 @@ function initMenu() {
     // Cargar productos inicialmente
     cargarProductos();
     
-    // Actualizar automáticamente cada 10 segundos (reducido para mejor UX)
-    setInterval(cargarProductos, 10000);
+    // Actualizar automáticamente cada 30 segundos (reducido para mejor UX)
+    setInterval(cargarProductos, 30000);
     
     // También actualizar cuando la ventana gane foco
     window.addEventListener('focus', cargarProductos);
