@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Menú Digital</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js" defer></script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2YN09321T6"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-2YN09321T6');
+</script>
+
+<style>
+    :root {
+        --midnight: #0F172B;
+        --midnight-light: #1E293B;
+        --midnight-dark: #0A1120;
+        --parchment: #F5EEDF;
+        --parchment-dark: #E8D9C5;
+        --accent: #C9A86A;
+        --accent-light: #E6C78C;
+        --accent-dark: #B8943E;
+        --shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+        --transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.1);
+        --border-radius: 12px;
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    body {
+        font-family: 'Crimson Text', 'Times New Roman', serif;
+        background-color: var(--midnight);
+        background-image: 
+            url('https://i.pinimg.com/736x/d0/0a/15/d00a150d9c99a525b46f7821f0cc45cd.jpg');
+        background-size: cover;
+        background-attachment: fixed;
+        background-position: center;
+        color: var(--parchment);
+        min-height: 100vh;
+        padding: 20px;
+        line-height: 1.6;
+        position: relative;
+    }
+
+    body:before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(15, 23, 43, 0.85);
+        z-index: 0;
+    }
+
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 20px;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Elemento decorativo de esquina */
+    .corner-ornament {
+        position: absolute;
+        width: 80px;
+        height: 80px;
+        z-index: 1;
+        opacity: 0.6;
+    }
+
+    .corner-tl {
+        top: 0;
+        left: 0;
+        border-top: 3px solid var(--accent);
+        border-left: 3px solid var(--accent);
+        border-top-left-radius: 15px;
+    }
+
+    .corner-tr {
+        top: 0;
+        right: 0;
+        border-top: 3px solid var(--accent);
+        border-right: 3px solid var(--accent);
+        border-top-right-radius: 15px;
+    }
+
+    .corner-bl {
+        bottom: 0;
+        left: 0;
+        border-bottom: 3px solid var(--accent);
+        border-left: 3px solid var(--accent);
+        border-bottom-left-radius: 15px;
+    }
+
+    .corner-br {
+        bottom: 0;
+        right: 0;
+        border-bottom: 3px solid var(--accent);
+        border-right: 3px solid var(--accent);
+        border-bottom-right-radius: 15px;
+    }
+
+    header {
+        text-align: center;
+        margin-bottom: 50px;
+        padding: 40px 30px 30px;
+        position: relative;
+        background-color: rgba(30, 41, 59, 0.9);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        border: 1px solid var(--accent);
+        z-index: 2;
+        backdrop-filter: blur(10px);
+    }
+
+    header:before {
+        content: '';
+        position: absolute;
+        top: 15px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 200px;
+        height: 4px;
+        background: linear-gradient(90deg, transparent, var(--accent), transparent);
+        border-radius: 5px;
+    }
+
+    h2 {
+        font-family: 'Cinzel', 'Playfair Display', serif;
+        font-size: 3.2rem;
+        font-weight: 700;
+        color: var(--parchment);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 10px;
+        position: relative;
+        display: inline-block;
+        padding: 0 20px;
+    }
+
+    h2:after, h2:before {
+        content: '✦';
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--accent);
+        font-size: 1.5rem;
+    }
+
+    h2:before {
+        left: -10px;
+    }
+
+    h2:after {
+        right: -10px;
+    }
+
+    .subtitle {
+        font-size: 1.3rem;
+        color: var(--accent-light);
+        font-style: italic;
+        margin-top: 10px;
+        letter-spacing: 1px;
+        position: relative;
+        display: inline-block;
+        padding: 0 15px;
+    }
+
+    .subtitle:after, .subtitle:before {
+        content: '~';
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--accent);
+        font-size: 1.2rem;
+    }
+
+    .subtitle:before {
+        left: -5px;
+    }
+
+    .subtitle:after {
+        right: -5px;
+    }
+
+    #contenedor {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 35px;
+        margin-top: 30px;
+    }
+
+    .item {
+        background-color: rgba(30, 41, 59, 0.85);
+        border-radius: var(--border-radius);
+        padding: 25px;
+        box-shadow: var(--shadow);
+        transition: var(--transition);
+        position: relative;
+        overflow: hidden;
+        border: 2px solid rgba(201, 168, 106, 0.3);
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        backdrop-filter: blur(5px);
+    }
+
+    .item:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        border-color: var(--accent);
+    }
+
+    .item:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(90deg, var(--accent), var(--accent-light), var(--accent));
+        z-index: 1;
+    }
+
+    .image-container {
+        position: relative;
+        width: 100%;
+        height: 240px;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 25px;
+        border: 3px solid rgba(201, 168, 106, 0.2);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .image-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: var(--transition);
+    }
+
+    .item:hover .image-container img {
+        transform: scale(1.1);
+    }
+
+    .image-container:after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(to bottom, transparent 60%, rgba(15, 23, 43, 0.4) 100%);
+        pointer-events: none;
+    }
+
+    .item h3 {
+        font-family: 'Cinzel', serif;
+        font-size: 1.9rem;
+        font-weight: 600;
+        color: var(--parchment);
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid rgba(201, 168, 106, 0.3);
+        position: relative;
+        text-align: center;
+    }
+
+    .item h3:after {
+        content: '';
+        position: absolute;
+        left: 50%;
+        bottom: -8px;
+        transform: translateX(-50%);
+        width: 40px;
+        height: 3px;
+        background-color: var(--accent);
+        border-radius: 3px;
+    }
+
+    .price {
+        font-family: 'Cinzel', serif;
+        font-size: 2.8rem;
+        font-weight: 700;
+        color: var(--accent);
+        margin-top: auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding-top: 20px;
+        border-top: 2px solid rgba(245, 238, 223, 0.1);
+        position: relative;
+        text-align: center;
+    }
+
+    .price:before {
+        content: '$';
+        font-size: 2rem;
+        color: var(--accent-light);
+        margin-right: 8px;
+        opacity: 0.9;
+    }
+
+    .currency {
+        font-size: 1.5rem;
+        color: var(--parchment);
+        font-weight: 600;
+        letter-spacing: 1px;
+        margin-left: 10px;
+        opacity: 0.8;
+    }
+
+    .ornamental-border {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .ornamental-border:before {
+        content: '';
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        border: 1px solid rgba(201, 168, 106, 0.1);
+        border-radius: calc(var(--border-radius) - 4px);
+    }
+
+    .loading {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 60px;
+        font-size: 1.8rem;
+        color: var(--accent);
+        font-family: 'Cinzel', serif;
+        background-color: rgba(30, 41, 59, 0.9);
+        border-radius: var(--border-radius);
+        border: 2px solid var(--accent);
+        box-shadow: var(--shadow);
+        backdrop-filter: blur(5px);
+    }
+
+    .loading:after {
+        content: '...';
+        animation: dots 1.5s steps(4, end) infinite;
+    }
+
+    @keyframes dots {
+        0%, 20% { content: '.'; }
+        40% { content: '..'; }
+        60%, 100% { content: '...'; }
+    }
+
+    footer {
+        text-align: center;
+        margin-top: 60px;
+        padding: 30px;
+        color: var(--parchment);
+        font-size: 1rem;
+        border-top: 2px solid var(--accent);
+        background-color: rgba(15, 23, 43, 0.9);
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        position: relative;
+        overflow: hidden;
+        backdrop-filter: blur(10px);
+    }
+
+    footer:before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, var(--accent), var(--accent-light), var(--accent));
+    }
+
+    footer p {
+        position: relative;
+        z-index: 1;
+    }
+
+    .footer-icon {
+        color: var(--accent);
+        margin-right: 10px;
+    }
+
+    @media (max-width: 768px) {
+        h2 {
+            font-size: 2.5rem;
+        }
+        
+        #contenedor {
+            grid-template-columns: 1fr;
+            gap: 25px;
+        }
+        
+        .container {
+            padding: 10px;
+        }
+        
+        .corner-ornament {
+            width: 60px;
+            height: 60px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        h2 {
+            font-size: 2rem;
+        }
+        
+        .item {
+            padding: 20px;
+        }
+        
+        .image-container {
+            height: 200px;
+        }
+        
+        .price {
+            font-size: 2.2rem;
+        }
+    }
+</style>
+
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Crimson+Text:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+</head>
+<body>
+    <div class="container">
+        <!-- Elementos decorativos de esquina -->
+        <div class="corner-ornament corner-tl"></div>
+        <div class="corner-ornament corner-tr"></div>
+        <div class="corner-ornament corner-bl"></div>
+        <div class="corner-ornament corner-br"></div>
+        
+        <header>
+            <h2>Menú Colonial</h2>
+            <div class="subtitle">Sabores de antaño • Tradición en cada plato</div>
+        </header>
+        
+        <div id="contenedor">
+            <div class="loading">Cargando especialidades</div>
+        </div>
+        
+        <footer>
+            <p><i class="fas fa-utensils footer-icon"></i>© 2025 Menú de Prueva</p>
+            <p style="margin-top: 10px; font-size: 0.9rem; opacity: 0.9;">
+                <i class="fas fa-seedling footer-icon"></i>
+                Ingredientes frescos y de temporada
+            </p>
+        </footer>
+    </div>
+
+<script>
+// =============================
+// CARGAR PRODUCTOS
+// =============================
+async function cargarProductos() {
+    const contenedor = document.getElementById("contenedor");
+    
+    // Mostrar estado de carga
+    contenedor.innerHTML = `
+        <div class="loading">
+            Cargando especialidades coloniales
+        </div>`;
+
+    try {
+        const { data, error } = await SupabaseClient.getVisibleProducts();
+
+        if (error) {
+            console.error("ERROR:", error);
+            contenedor.innerHTML = `
+                <div class="loading" style="color: #C9A86A;">
+                    <i class="fas fa-exclamation-triangle"></i><br>
+                    Error cargando el menú. Por favor, intente nuevamente.<br>
+                    <small>${error.message || 'Error desconocido'}</small>
+                </div>`;
+            return;
+        }
+
+        if (!data || data.length === 0) {
+            contenedor.innerHTML = `
+                <div class="loading" style="grid-column: 1 / -1;">
+                    <i class="fas fa-utensils"></i><br>
+                    No hay platos disponibles en este momento.<br>
+                    <small>Vuelva a intentarlo más tarde</small>
+                </div>`;
+            return;
+        }
+
+        // Limpiar contenedor
+        contenedor.innerHTML = "";
+
+        // Crear elementos para cada producto
+        for (const p of data) {
+            const div = document.createElement("div");
+            div.className = "item";
+
+            // Obtener URL de imagen usando SupabaseClient
+            const imgUrl = await SupabaseClient.getImageUrl(p.image_url);
+
+            div.innerHTML = `
+                <div class="ornamental-border"></div>
+                <div class="image-container">
+                    <img src="${imgUrl}" 
+                         alt="${p.name}" 
+                         loading="lazy"
+                         onerror="this.src='https://images.unsplash.com/photo-1565958011703-44f9829ba187?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'">
+                </div>
+                
+                <h3>${p.name}</h3>
+                
+                <div class="price">
+                    <span>${p.price.toFixed(2)}</span>
+                    <span class="currency">CUP</span>
+                </div>
+            `;
+
+            contenedor.appendChild(div);
+        }
+        
+        console.log(`✅ Cargados ${data.length} productos visibles`);
+        
+    } catch (error) {
+        console.error("Error en cargarProductos:", error);
+        contenedor.innerHTML = `
+            <div class="loading" style="color: #C9A86A;">
+                <i class="fas fa-exclamation-circle"></i><br>
+                Error inesperado al cargar el menú.<br>
+                <small>${error.message || 'Error desconocido'}</small>
+            </div>`;
+    }
+}
+
+// =============================
+// INICIALIZACIÓN
+// =============================
+function initMenu() {
+    if (!window.SupabaseClient || !SupabaseClient.client) {
+        console.warn('SupabaseClient no está disponible aún, reintentando...');
+        setTimeout(initMenu, 100);
+        return;
+    }
+    
+    console.log('🔄 Inicializando menú digital...');
+    
+    // Cargar productos inicialmente
+    cargarProductos();
+    
+    // Actualizar automáticamente cada 30 segundos (reducido para mejor UX)
+    setInterval(cargarProductos, 30000);
+    
+    // También actualizar cuando la ventana gane foco
+    window.addEventListener('focus', cargarProductos);
+}
+
+// Iniciar cuando el DOM esté listo
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMenu);
+} else {
+    initMenu();
+}
+
+// Mostrar mensaje de conexión en consola
+console.log('🌐 Menú Digital Colonial - Cargando...');
+</script>
+
+</body>
+</html>
