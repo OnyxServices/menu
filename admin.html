@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Panel Admin - Premium</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="supabase-client.js" defer></script>
+
+<style>
+:root {
+    --primary: #6366f1;
+    --primary-dark: #4f46e5;
+    --secondary: #0f172a;
+    --dark: #f8fafc;
+    --bg-dark: #020617;
+    --card-bg: #1e293b;
+    --border: #334155;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --error: #ef4444;
+    --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4);
+    --radius: 16px;
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg-dark);
+    color: var(--dark);
+    min-height: 100vh;
+    padding: 20px;
+    background-image: radial-gradient(circle at top right, #1e1b4b, transparent), 
+                      radial-gradient(circle at bottom left, #0f172a, transparent);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+header {
+    background: rgba(30, 41, 59, 0.7);
+    backdrop-filter: blur(10px);
+    padding: 25px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    margin-bottom: 30px;
+    border: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+h2 {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+    background: linear-gradient(to right, #818cf8, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.stats {
+    display: flex;
+    gap: 12px;
+}
+
+.stat-item {
+    background: rgba(15, 23, 42, 0.6);
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    color: #94a3b8;
+}
+
+/* GRID OPTIMIZADO: 2 COLUMNAS EN MÓVIL */
+#productos {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+}
+
+@media (min-width: 768px) {
+    #productos {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 25px;
+    }
+}
+
+.item {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    padding: 15px;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+.item:hover {
+    transform: translateY(-8px);
+    border-color: var(--primary);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+img {
+    width: 100%;
+    aspect-ratio: 1/1;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    background: #0f172a;
+}
+
+.item h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 15px;
+    min-height: 40px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #94a3b8;
+}
+
+input[type="number"] {
+    width: 100%;
+    padding: 8px 12px;
+    background: #0f172a;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: white;
+    font-size: 15px;
+    margin-top: 4px;
+}
+
+input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary);
+}
+
+/* BOTÓN INDIVIDUAL */
+.btn-save {
+    margin-top: 15px;
+    padding: 10px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn-save:hover {
+    background: var(--primary-dark);
+}
+
+.btn-save:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.status-indicator {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    z-index: 2;
+}
+
+.status-online { background: var(--success); box-shadow: 0 0 8px var(--success); }
+.status-offline { background: var(--error); box-shadow: 0 0 8px var(--error); }
+
+/* NOTIFICACIONES */
+.notification {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: #1e293b;
+    border-left: 4px solid var(--primary);
+    padding: 16px 24px;
+    border-radius: 12px;
+    box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+    z-index: 1000;
+    transform: translateY(150%);
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.notification.show { transform: translateY(0); }
+.notification.success { border-left-color: var(--success); }
+.notification.error { border-left-color: var(--error); }
+</style>
+</head>
+
+<body>
+<div class="container">
+    <header>
+        <h2>Admin Menu</h2>
+        <div class="stats">
+            <div class="stat-item"><span id="total-items">0</span> total</div>
+            <div class="stat-item"><span id="visible-items">0</span> activos</div>
+        </div>
+    </header>
+
+    <div id="productos">
+        <div class="loading">Iniciando...</div>
+    </div>
+</div>
+
+<div id="notification" class="notification"></div>
+
+<script>
+// =============================
+// FUNCIONES DE NOTIFICACIÓN
+// =============================
+function showNotification(message, type = 'success') {
+    const notification = document.getElementById('notification');
+    notification.textContent = (type === 'success' ? '✅ ' : '❌ ') + message;
+    notification.className = `notification ${type} show`;
+    
+    setTimeout(() => {
+        notification.classList.remove('show');
+    }, 3500);
+}
+
+// =============================
+// CARGAR PRODUCTOS
+// =============================
+async function cargar() {
+    const box = document.getElementById("productos");
+    
+    try {
+        const { data, error } = await SupabaseClient.getAllProducts();
+
+        if (error) throw error;
+
+        box.innerHTML = "";
+
+        // Estadísticas
+        document.getElementById("total-items").textContent = data.length;
+        document.getElementById("visible-items").textContent = data.filter(p => p.visible).length;
+
+        for (const p of data) {
+            const imgUrl = await SupabaseClient.getImageUrl(p.image_url);
+            const div = document.createElement("div");
+            div.className = "item";
+            div.innerHTML = `
+                <div class="status-indicator ${p.visible ? "status-online" : "status-offline"}"></div>
+                <img src="${imgUrl}" alt="${p.name}">
+                <h3>${p.name}</h3>
+
+                <label style="flex-direction: column; align-items: flex-start;">
+                    Precio ($)
+                    <input type="number" id="precio-${p.id}" value="${p.price}" step="0.01">
+                </label>
+
+                <label style="margin-top: 10px; cursor: pointer;">
+                    <input type="checkbox" id="chk-${p.id}" ${p.visible ? "checked" : ""}>
+                    Visible en menú
+                </label>
+
+                <button class="btn-save" onclick="guardarUno('${p.id}')" id="btn-save-${p.id}">
+                    <span>Guardar</span>
+                </button>
+            `;
+            box.appendChild(div);
+        }
+    } catch (error) {
+        box.innerHTML = `<div class="loading">Error: ${error.message}</div>`;
+    }
+}
+
+// =============================
+// GUARDAR UN PRODUCTO (CAMBIO PRINCIPAL)
+// =============================
+async function guardarUno(id) {
+    const btn = document.getElementById(`btn-save-${id}`);
+    const originalText = btn.innerHTML;
+    
+    // UI Loading
+    btn.disabled = true;
+    btn.innerHTML = '<span>⌛...</span>';
+
+    const precio = Number(document.getElementById("precio-" + id).value);
+    const visible = document.getElementById("chk-" + id).checked;
+
+    try {
+        // Mantenemos la lógica de la función updateMultipleProducts pero enviando solo uno
+        // para asegurar compatibilidad con tu archivo supabase-client.js
+        const result = await SupabaseClient.updateMultipleProducts([{ id, price: precio, visible }]);
+        
+        if (result.summary.errors > 0) {
+            throw new Error("No se pudo actualizar");
+        }
+
+        showNotification('Producto actualizado');
+        
+        // Actualizar el indicador visual de la tarjeta sin recargar todo
+        const indicator = btn.closest('.item').querySelector('.status-indicator');
+        indicator.className = `status-indicator ${visible ? "status-online" : "status-offline"}`;
+        
+    } catch (error) {
+        showNotification(error.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+    }
+}
+
+// =============================
+// INICIALIZACIÓN
+// =============================
+function initAdmin() {
+    if (!window.SupabaseClient || !SupabaseClient.client) {
+        setTimeout(initAdmin, 100);
+        return;
+    }
+    cargar();
+}
+
+document.addEventListener('DOMContentLoaded', initAdmin);
+</script>
+
+</body>
+</html>
